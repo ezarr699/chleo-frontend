@@ -19,7 +19,7 @@
  * ============================================================
  */
 
-import { DatabaseIcon, LayoutDashboardIcon, TerminalIcon, UsersIcon } from 'lucide-react'
+import { DatabaseIcon, LayoutDashboardIcon, StethoscopeIcon, TerminalIcon, UsersIcon } from 'lucide-react'
 import { NavMain, type NavMainItem } from '@/shared/components/nav-main'
 import { NavUser } from '@/shared/components/nav-user'
 import {
@@ -67,6 +67,9 @@ export function AppSidebar({
     },
     ...(user?.permissions.includes('pasien.view')
       ? [{ title: 'Pasien', url: '/pasien', icon: <UsersIcon /> }]
+      : []),
+    ...(user?.permissions.includes('profil_nakes.view')
+      ? [{ title: 'Nakes', url: '/nakes', icon: <StethoscopeIcon /> }]
       : []),
     ...(visibleMasterData.length > 0
       ? [

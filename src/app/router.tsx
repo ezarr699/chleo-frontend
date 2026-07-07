@@ -17,6 +17,7 @@ import { createBrowserRouter, Navigate } from 'react-router'
 import { AuthGuard } from '@/features/auth'
 import { PermissionGuard } from '@/features/master-data'
 import { PasienListPage } from '@/features/pasien'
+import { NakesPage } from './pages/NakesPage'
 import { DashboardLayout } from './layouts/DashboardLayout'
 import { AccountSuspendedPage } from './pages/AccountSuspendedPage'
 import { DashboardPage } from './pages/DashboardPage'
@@ -132,6 +133,10 @@ export const router = createBrowserRouter([
           {
             element: <PermissionGuard permission="pasien.view" />,
             children: [{ path: '/pasien', element: <PasienListPage /> }],
+          },
+          {
+            element: <PermissionGuard permission="profil_nakes.view" />,
+            children: [{ path: '/nakes', element: <NakesPage /> }],
           },
         ],
       },
