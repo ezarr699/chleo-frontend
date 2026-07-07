@@ -9,7 +9,13 @@
  *              status aktif mengikuti route saat ini. Setiap item
  *              di-render lewat NavMainCollapsibleItem supaya state
  *              open/close Collapsible bisa controlled per-item (lihat
- *              komentar di komponen tersebut soal alasannya).
+ *              komentar di komponen tersebut soal alasannya). Sub-item
+ *              opsional punya `category` — kalau diisi, item dengan
+ *              category yang sama dikelompokkan lalu dirender sebagai
+ *              Collapsible sendiri (lihat NavMainCategoryGroup), jadi
+ *              tiap kategori bisa dibuka/tutup independen dari kategori
+ *              lain. Item tanpa category tetap tampil sebagai daftar
+ *              datar seperti sebelumnya (lihat groupItemsByCategory).
  * @ui          shadcn/ui: Collapsible, Sidebar
  * @since       v1.0.0
  * @ref         https://ui.shadcn.com/docs/components/sidebar
@@ -37,11 +43,38 @@ import {
 } from '@/shared/components/ui/sidebar'
 import { ChevronRightIcon } from 'lucide-react'
 
+export interface NavMainSubItem {
+  title: string
+  url: string
+  category?: string
+}
+
 export interface NavMainItem {
   title: string
   url: string
   icon: ReactNode
-  items?: { title: string; url: string }[]
+  items?: NavMainSubItem[]
+}
+
+interface NavMainCategoryBucket {
+  category?: string
+  items: NavMainSubItem[]
+}
+
+/** Kelompokkan item beruntun yang punya `category` sama jadi satu bucket. */
+function groupItemsByCategory(items: NavMainSubItem[]): NavMainCategoryBucket[] {
+  const buckets: NavMainCategoryBucket[] = []
+
+  for (const item of items) {
+    const lastBucket = buckets[buckets.length - 1]
+    if (lastBucket && lastBucket.category === item.category) {
+      lastBucket.items.push(item)
+    } else {
+      buckets.push({ category: item.category, items: [item] })
+    }
+  }
+
+  return buckets
 }
 
 export function NavMain({ items }: { items: NavMainItem[] }) {
@@ -93,17 +126,60 @@ function NavMainCollapsibleItem({ item, isActive }: NavMainCollapsibleItemProps)
           </CollapsibleTrigger>
           <CollapsibleContent>
             <SidebarMenuSub>
-              {item.items.map((subItem) => (
-                <SidebarMenuSubItem key={subItem.title}>
-                  <SidebarMenuSubButton render={<NavLink to={subItem.url} />}>
-                    <span>{subItem.title}</span>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-              ))}
+              {groupItemsByCategory(item.items).map((bucket) =>
+                bucket.category ? (
+                  <NavMainCategoryGroup key={bucket.category} category={bucket.category} items={bucket.items} />
+                ) : (
+                  bucket.items.map((subItem) => (
+                    <SidebarMenuSubItem key={subItem.title}>
+                      <SidebarMenuSubButton render={<NavLink to={subItem.url} />}>
+                        <span>{subItem.title}</span>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  ))
+                ),
+              )}
             </SidebarMenuSub>
           </CollapsibleContent>
         </>
       ) : null}
     </Collapsible>
+  )
+}
+
+interface NavMainCategoryGroupProps {
+  category: string
+  items: NavMainSubItem[]
+}
+
+/** Satu kategori data master, collapsible independen dari kategori lain. */
+function NavMainCategoryGroup({ category, items }: NavMainCategoryGroupProps) {
+  const { pathname } = useLocation()
+  const hasActiveChild = items.some((subItem) => subItem.url === pathname)
+  const [open, setOpen] = useState(hasActiveChild)
+
+  return (
+    <li>
+      <Collapsible open={open} onOpenChange={setOpen}>
+        <CollapsibleTrigger className="group text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex w-full items-center justify-between rounded-md px-2 py-1.5 text-[0.6875rem] font-medium tracking-wide uppercase outline-hidden">
+          <span>{category}</span>
+          <ChevronRightIcon
+            className="size-3.5 shrink-0 transition-transform group-aria-expanded:rotate-90"
+            aria-hidden="true"
+          />
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <SidebarMenuSub>
+            {items.map((subItem) => (
+              <SidebarMenuSubItem key={subItem.title}>
+                <SidebarMenuSubButton render={<NavLink to={subItem.url} />}>
+                  <span>{subItem.title}</span>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+            ))}
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </Collapsible>
+    </li>
   )
 }

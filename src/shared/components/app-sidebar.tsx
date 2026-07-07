@@ -9,6 +9,10 @@
  *              hanya tampil untuk sub-item yang user punya permission
  *              `*.view`-nya (RBAC) — defense-in-depth UX, penegakan
  *              sesungguhnya ada di middleware `permission:` backend.
+ *              MASTER_DATA_RESOURCES sudah diurutkan per `category` (bukan
+ *              alfabetis) supaya NavMain bisa menyisipkan label kategori
+ *              tiap kali kategorinya berubah — urutan array ini menentukan
+ *              urutan tampil, jangan diacak.
  * @ui          shadcn/ui: Sidebar
  * @since       v1.0.0
  * @ref         https://ui.shadcn.com/docs/components/sidebar
@@ -30,10 +34,21 @@ import {
 import type { User } from '@/features/auth'
 
 const MASTER_DATA_RESOURCES = [
-  { title: 'Golongan Darah', url: '/master-data/golongan-darah', permission: 'golongan_darah.view' },
-  { title: 'Jenis Kelamin', url: '/master-data/jenis-kelamin', permission: 'jenis_kelamin.view' },
-  { title: 'Penjamin', url: '/master-data/penjamin', permission: 'penjamin.view' },
-  { title: 'Asuransi', url: '/master-data/asuransi', permission: 'asuransi.view' },
+  { title: 'Golongan Darah', url: '/master-data/golongan-darah', permission: 'golongan_darah.view', category: 'Kependudukan & Demografi' },
+  { title: 'Jenis Kelamin', url: '/master-data/jenis-kelamin', permission: 'jenis_kelamin.view', category: 'Kependudukan & Demografi' },
+  { title: 'Agama', url: '/master-data/agama', permission: 'agama.view', category: 'Kependudukan & Demografi' },
+  { title: 'Status Perkawinan', url: '/master-data/status-perkawinan', permission: 'status_perkawinan.view', category: 'Kependudukan & Demografi' },
+  { title: 'Pekerjaan', url: '/master-data/pekerjaan', permission: 'pekerjaan.view', category: 'Kependudukan & Demografi' },
+  { title: 'Pendidikan Terakhir', url: '/master-data/pendidikan-terakhir', permission: 'pendidikan_terakhir.view', category: 'Kependudukan & Demografi' },
+  { title: 'Hubungan Keluarga', url: '/master-data/hubungan-keluarga', permission: 'hubungan_keluarga.view', category: 'Kependudukan & Demografi' },
+  { title: 'Penjamin', url: '/master-data/penjamin', permission: 'penjamin.view', category: 'Penjamin & Pembiayaan' },
+  { title: 'Asuransi', url: '/master-data/asuransi', permission: 'asuransi.view', category: 'Penjamin & Pembiayaan' },
+  { title: 'Profesi', url: '/master-data/profesi', permission: 'profesi.view', category: 'SDM & Klinisi' },
+  { title: 'Poliklinik', url: '/master-data/poliklinik', permission: 'poliklinik.view', category: 'SDM & Klinisi' },
+  { title: 'Kategori Layanan', url: '/master-data/kategori-layanan', permission: 'kategori_layanan.view', category: 'Layanan & Tarif' },
+  { title: 'Kategori Obat', url: '/master-data/kategori-obat', permission: 'kategori_obat.view', category: 'Farmasi & Alkes' },
+  { title: 'Satuan', url: '/master-data/satuan', permission: 'satuan.view', category: 'Farmasi & Alkes' },
+  { title: 'Kategori Triase', url: '/master-data/kategori-triase', permission: 'kategori_triase.view', category: 'Kegawatdaruratan' },
 ] as const
 
 export function AppSidebar({
@@ -59,7 +74,7 @@ export function AppSidebar({
             title: 'Data Master',
             url: '/master-data',
             icon: <DatabaseIcon />,
-            items: visibleMasterData.map((r) => ({ title: r.title, url: r.url })),
+            items: visibleMasterData.map((r) => ({ title: r.title, url: r.url, category: r.category })),
           },
         ]
       : []),
