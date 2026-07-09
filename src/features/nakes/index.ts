@@ -10,4 +10,5 @@
  */
 
 export { NakesListPage } from './components/NakesListPage'
+export { useNakesList } from './hooks/useNakesList'
 export type { ProfilNakes, ProfilNakesPayload, UserRef } from './types'
